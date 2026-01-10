@@ -10,10 +10,16 @@
   // CONFIGURATION
   // ============================================
   const CONFIG = {
-    SEEK_STEP: 5,           // Seconds to skip with arrow keys
-    VOLUME_STEP: 0.1,       // Volume change per key press (10%)
+    SEEK_STEP: 5,           // Seconds to skip with arrow keys (default, loaded from storage)
+    VOLUME_STEP: 0.1,       // Volume change per key press (default, loaded from storage)
     DEFAULT_VOLUME: 0.5,    // Default volume (50%)
-    STORAGE_KEY: 'reelsVolume',
+    AUTO_UNMUTE: true,        // Auto-unmute videos on play (default, loaded from storage)
+    STORAGE_KEYS: {
+      VOLUME: 'reelsVolume',
+      SEEK_STEP: 'reelsSeekStep',
+      VOLUME_STEP: 'reelsVolumeStep',
+      AUTO_UNMUTE: 'reelsAutoUnmute'
+    },
     DATA_ATTR: 'data-reels-enhanced',
     CONTROLS_CLASS: 'reels-controls',
     DEBUG: true             // Set to false in production
@@ -60,15 +66,40 @@
   // ============================================
   let currentVolume = CONFIG.DEFAULT_VOLUME;
 
-  async function loadVolume() {
+  async function loadSettings() {
     try {
-      const result = await chrome.storage.local.get(CONFIG.STORAGE_KEY);
-      if (result[CONFIG.STORAGE_KEY] !== undefined) {
-        currentVolume = result[CONFIG.STORAGE_KEY];
+      const result = await chrome.storage.local.get([
+        CONFIG.STORAGE_KEYS.VOLUME,
+        CONFIG.STORAGE_KEYS.SEEK_STEP,
+        CONFIG.STORAGE_KEYS.VOLUME_STEP,
+        CONFIG.STORAGE_KEYS.AUTO_UNMUTE
+      ]);
+
+      // Load volume
+      if (result[CONFIG.STORAGE_KEYS.VOLUME] !== undefined) {
+        currentVolume = result[CONFIG.STORAGE_KEYS.VOLUME];
         log('Loaded volume:', currentVolume);
       }
+
+      // Load seek step
+      if (result[CONFIG.STORAGE_KEYS.SEEK_STEP] !== undefined) {
+        CONFIG.SEEK_STEP = result[CONFIG.STORAGE_KEYS.SEEK_STEP];
+        log('Loaded seek step:', CONFIG.SEEK_STEP);
+      }
+
+      // Load volume step
+      if (result[CONFIG.STORAGE_KEYS.VOLUME_STEP] !== undefined) {
+        CONFIG.VOLUME_STEP = result[CONFIG.STORAGE_KEYS.VOLUME_STEP];
+        log('Loaded volume step:', CONFIG.VOLUME_STEP);
+      }
+
+      // Load auto-unmute setting (default is true)
+      if (result[CONFIG.STORAGE_KEYS.AUTO_UNMUTE] !== undefined) {
+        CONFIG.AUTO_UNMUTE = result[CONFIG.STORAGE_KEYS.AUTO_UNMUTE];
+        log('Loaded auto-unmute:', CONFIG.AUTO_UNMUTE);
+      }
     } catch (e) {
-      log('Error loading volume:', e);
+      log('Error loading settings:', e);
     }
     return currentVolume;
   }
@@ -76,11 +107,37 @@
   async function saveVolume(volume) {
     try {
       currentVolume = volume;
-      await chrome.storage.local.set({ [CONFIG.STORAGE_KEY]: volume });
+      await chrome.storage.local.set({ [CONFIG.STORAGE_KEYS.VOLUME]: volume });
       log('Saved volume:', volume);
     } catch (e) {
       log('Error saving volume:', e);
     }
+  }
+
+  // Listen for storage changes (when user changes settings in popup)
+  function setupStorageListener() {
+    chrome.storage.onChanged.addListener((changes, areaName) => {
+      log('Storage changed:', areaName, changes);
+
+      if (areaName !== 'local') return;
+
+      if (changes[CONFIG.STORAGE_KEYS.SEEK_STEP]) {
+        CONFIG.SEEK_STEP = changes[CONFIG.STORAGE_KEYS.SEEK_STEP].newValue;
+        log('Seek step updated to:', CONFIG.SEEK_STEP);
+      }
+
+      if (changes[CONFIG.STORAGE_KEYS.VOLUME_STEP]) {
+        CONFIG.VOLUME_STEP = changes[CONFIG.STORAGE_KEYS.VOLUME_STEP].newValue;
+        log('Volume step updated to:', CONFIG.VOLUME_STEP);
+      }
+
+      if (changes[CONFIG.STORAGE_KEYS.AUTO_UNMUTE]) {
+        CONFIG.AUTO_UNMUTE = changes[CONFIG.STORAGE_KEYS.AUTO_UNMUTE].newValue;
+        log('Auto-unmute updated to:', CONFIG.AUTO_UNMUTE);
+      }
+    });
+
+    log('Storage listener registered');
   }
 
   // ============================================
@@ -187,10 +244,31 @@
     const controls = createControls(video);
     videoContainer.appendChild(controls.container);
 
-    // Apply saved volume
-    video.volume = currentVolume;
-    video.muted = false;
-    updateVolumeIcon(controls.volumeBtn, currentVolume, false);
+    // Apply saved volume (use default 50% if not set)
+    const volumeToApply = currentVolume > 0 ? currentVolume : CONFIG.DEFAULT_VOLUME;
+    video.volume = volumeToApply;
+    
+    // Auto-unmute on play event (more robust than setting immediately)
+    if (CONFIG.AUTO_UNMUTE) {
+      const handlePlay = () => {
+        if (CONFIG.AUTO_UNMUTE && video.muted) {
+          video.muted = false;
+          video.volume = volumeToApply;
+          updateVolumeIcon(controls.volumeBtn, video.volume, false);
+          log('Auto-unmuted on play, volume:', video.volume);
+        }
+      };
+      
+      // Listen for play events
+      video.addEventListener('play', handlePlay);
+      
+      // Also try immediately if video is already playing
+      if (!video.paused) {
+        handlePlay();
+      }
+    }
+    
+    updateVolumeIcon(controls.volumeBtn, volumeToApply, video.muted);
 
     // ----------------------------------------
     // PROGRESS BAR / SCRUBBING
@@ -421,8 +499,11 @@
   async function init() {
     log('Initializing Instagram Reels Controls...');
 
-    // Load saved volume
-    await loadVolume();
+    // Setup storage listener FIRST (to catch any changes)
+    setupStorageListener();
+
+    // Load saved settings (volume, seek step, volume step)
+    await loadSettings();
 
     // Find and enhance existing videos
     findAndEnhanceVideos();
@@ -434,6 +515,7 @@
     setupKeyboardShortcuts();
 
     log('Initialization complete');
+    log('Current settings - Seek:', CONFIG.SEEK_STEP, 'Volume step:', CONFIG.VOLUME_STEP);
   }
 
   // Start when DOM is ready

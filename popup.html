@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Instagram Reels Controls</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="popup-container">
+    <header class="popup-header">
+      <img src="icons/icon48.png" alt="IRC" class="logo">
+      <h1>Reels Controls</h1>
+    </header>
+
+    <main class="popup-content">
+      <div class="setting-group">
+        <label for="seek-step">Sprungweite (←→ Tasten)</label>
+        <select id="seek-step">
+          <option value="0.5">0,5 Sekunden</option>
+          <option value="1">1 Sekunde</option>
+          <option value="2">2 Sekunden</option>
+          <option value="3">3 Sekunden</option>
+          <option value="5" selected>5 Sekunden</option>
+        </select>
+      </div>
+
+      <div class="setting-group">
+        <label for="volume-step">Lautstärke-Schritte (↑↓ Tasten)</label>
+        <select id="volume-step">
+          <option value="0.05">5%</option>
+          <option value="0.1" selected>10%</option>
+          <option value="0.2">20%</option>
+          <option value="0.25">25%</option>
+        </select>
+      </div>
+
+      <div class="setting-group checkbox-group">
+        <label class="checkbox-label">
+          <input type="checkbox" id="auto-unmute" checked>
+          <span class="checkbox-text">Videos automatisch entmuten</span>
+        </label>
+        <span class="setting-hint">Spielt Videos mit deiner gespeicherten Lautstärke ab</span>
+      </div>
+    </main>
+
+    <footer class="popup-footer">
+      <span class="version">v1.1.0</span>
+      <span class="save-status" id="save-status"></span>
+    </footer>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

@@ -2,7 +2,7 @@
 
 Eine Chrome-Erweiterung, die Video-Scrubbing, Lautstärkeregelung und Keyboard-Shortcuts für Instagram Reels hinzufügt.
 
-![Version](https://img.shields.io/badge/version-1.0.0-blue)
+![Version](https://img.shields.io/badge/version-1.1.0-blue)
 ![Chrome](https://img.shields.io/badge/Chrome-Extension-green)
 ![License](https://img.shields.io/badge/license-MIT-purple)
 
@@ -10,7 +10,9 @@ Eine Chrome-Erweiterung, die Video-Scrubbing, Lautstärkeregelung und Keyboard-S
 
 - **🎬 Video-Scrubbing** – Navigiere frei innerhalb des Videos mit der Progress-Bar
 - **🔊 Lautstärkeregelung** – Stufenlose Lautstärke von 0-100% (nicht nur Mute/Unmute)
-- **💾 Persistente Lautstärke** – Deine Lautstärke-Einstellung wird gespeichert
+- **� Auto-Unmute** – Videos werden automatisch mit deiner Lautstärke abgespielt (abschaltbar)
+- **💾 Persistente Einstellungen** – Lautstärke und Einstellungen werden gespeichert
+- **⚙️ Einstellbares Popup** – Sprungweite, Lautstärke-Schritte und Auto-Unmute anpassbar
 - **⌨️ Keyboard-Shortcuts** – Schnelle Steuerung ohne Maus
 - **🙈 Versteckter Instagram-Sound-Button** – Der native Mute-Button wird ausgeblendet
 
@@ -18,12 +20,30 @@ Eine Chrome-Erweiterung, die Video-Scrubbing, Lautstärkeregelung und Keyboard-S
 
 | Taste | Aktion |
 |-------|--------|
-| `←` | 5 Sekunden zurück |
-| `→` | 5 Sekunden vor |
-| `↑` | Lautstärke +10% |
-| `↓` | Lautstärke -10% |
+| `←` | Zurück springen (einstellbar: 0,5s - 5s) |
+| `→` | Vorwärts springen (einstellbar: 0,5s - 5s) |
+| `↑` | Lautstärke erhöhen (einstellbar: 5% - 25%) |
+| `↓` | Lautstärke verringern (einstellbar: 5% - 25%) |
 | `M` | Mute/Unmute |
 | `P` | Play/Pause |
+
+> 💡 **Tipp:** Klicke auf das Extension-Icon in der Toolbar um die Einstellungen anzupassen.
+
+## ⚙️ Einstellungen
+
+Klicke auf das Extension-Icon in der Chrome-Toolbar um folgende Einstellungen anzupassen:
+
+| Einstellung | Optionen | Standard |
+|-------------|----------|----------|
+| **Sprungweite** | 0,5s / 1s / 2s / 3s / 5s | 5 Sekunden |
+| **Lautstärke-Schritte** | 5% / 10% / 20% / 25% | 10% |
+| **Auto-Unmute** | An / Aus | An |
+
+### Auto-Unmute
+
+Wenn aktiviert (Standard), werden Videos beim Abspielen automatisch mit deiner zuletzt eingestellten Lautstärke entmutet. Falls keine Lautstärke gespeichert ist, wird 50% verwendet.
+
+Wenn deaktiviert, bleiben Videos gemutet wie von Instagram vorgesehen.
 
 ## 🚀 Installation
 
@@ -120,6 +140,14 @@ instagram-reels-controls/
 In `content.js` ist `CONFIG.DEBUG = true` gesetzt. Logs erscheinen in der Browser-Konsole mit dem Prefix `[Reels Controls]`.
 
 ## 📝 Changelog
+
+### v1.1.0 (Januar 2026)
+- **NEU:** Auto-Unmute – Videos werden automatisch mit gespeicherter Lautstärke abgespielt
+- **NEU:** Popup-Einstellungen für Sprungweite (0,5s - 5s)
+- **NEU:** Popup-Einstellungen für Lautstärke-Schritte (5% - 25%)
+- **NEU:** Auto-Unmute Einstellung (Opt-Out möglich)
+- **NEU:** Einstellungen werden live übernommen (ohne Seiten-Reload)
+- Fallback auf 50% Lautstärke wenn keine gespeichert
 
 ### v1.0.0 (Januar 2026)
 - Initial Release
