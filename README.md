@@ -1,9 +1,10 @@
 # Instagram Reels Controls
 
-Eine Chrome-Erweiterung, die Video-Scrubbing, Lautstärkeregelung und Keyboard-Shortcuts für Instagram Reels hinzufügt.
+Eine Browser-Erweiterung für Chrome und Firefox, die Video-Scrubbing, Lautstärkeregelung und Keyboard-Shortcuts für Instagram Reels hinzufügt.
 
-![Version](https://img.shields.io/badge/version-1.1.0-blue)
+![Version](https://img.shields.io/badge/version-1.2.0-blue)
 ![Chrome](https://img.shields.io/badge/Chrome-Extension-green)
+![Firefox](https://img.shields.io/badge/Firefox-Add--on-orange)
 ![License](https://img.shields.io/badge/license-MIT-purple)
 
 ## ✨ Features
@@ -104,14 +105,20 @@ cd chrome-extension-instagram
 
 ```
 instagram-reels-controls/
-├── manifest.json      # Extension-Konfiguration
-├── content.js         # Hauptlogik
-├── content.css        # Styling
-├── README.md          # Diese Datei
+├── manifest.json          # Chrome Extension-Konfiguration
+├── manifest.firefox.json  # Firefox Add-on Konfiguration
+├── content.js             # Hauptlogik
+├── content.css            # Styling
+├── popup.html/js/css      # Einstellungs-Popup
+├── browser-polyfill.js    # Chrome/Firefox Kompatibilität
+├── build.sh               # Build-Script für Releases
+├── README.md              # Diese Datei
+├── PRIVACY.md             # Datenschutzerklärung
+├── SCREENSHOTS.md         # Screenshot-Guide für Stores
 └── icons/
-    ├── icon16.png     # Toolbar-Icon (klein)
-    ├── icon48.png     # Extension-Liste
-    └── icon128.png    # Chrome Web Store
+    ├── icon16.png         # Toolbar-Icon (IRC-Gradient)
+    ├── icon48.png         # Extension-Liste
+    └── icon128.png        # Web Stores
 ```
 
 ## 🔧 Troubleshooting
@@ -140,6 +147,16 @@ instagram-reels-controls/
 In `content.js` ist `CONFIG.DEBUG = true` gesetzt. Logs erscheinen in der Browser-Konsole mit dem Prefix `[Reels Controls]`.
 
 ## 📝 Changelog
+
+### v1.2.0 (Januar 2026)
+- **NEU:** Firefox-Kompatibilität – Extension funktioniert jetzt in Chrome UND Firefox
+- **NEU:** Browser-Polyfill für plattformübergreifende API-Nutzung
+- **NEU:** Markenrechtlich sichere Icons – IRC-Gradient ohne Instagram-Logo
+- **NEU:** Weiße Outline um Icons für bessere Sichtbarkeit
+- **NEU:** Automatisches Build-Script (`build.sh`) für Chrome/Firefox Releases
+- **NEU:** Datenschutzerklärung (PRIVACY.md) für Store-Einreichungen
+- **NEU:** Screenshot-Guide (SCREENSHOTS.md) für Store-Submissions
+- Alle `chrome.*` API-Aufrufe durch `browserAPI.*` ersetzt
 
 ### v1.1.0 (Januar 2026)
 - **NEU:** Auto-Unmute – Videos werden automatisch mit gespeicherter Lautstärke abgespielt
