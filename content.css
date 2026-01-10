@@ -1,0 +1,275 @@
+/**
+ * Instagram Reels Controls - Styles
+ */
+
+/* ============================================
+   HIDE INSTAGRAM'S NATIVE SOUND BUTTON
+   ============================================ */
+/* Target Instagram's mute/unmute button by various aria-labels */
+[aria-label="Ton an/aus"],
+[aria-label="Toggle audio"],
+[aria-label="Mute"],
+[aria-label="Unmute"],
+[aria-label="Audio is muted"],
+[aria-label="Audio is playing"],
+[aria-label="Ton stumm schalten"],
+[aria-label="Stummschaltung aufheben"],
+button[aria-label*="udio"],
+button[aria-label*="ute"],
+button[aria-label*="sound"],
+button[aria-label*="Sound"],
+button[aria-label*="Ton"] {
+  display: none !important;
+}
+
+/* ============================================
+   CONTROLS CONTAINER
+   ============================================ */
+.reels-controls {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 12px 16px;
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
+  display: flex;
+  flex-direction: row;
+  align-items: flex-end;
+  gap: 16px;
+  z-index: 9999;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  pointer-events: none;
+  box-sizing: border-box;
+}
+
+/* Show controls on hover */
+.reels-controls:hover,
+*:hover > .reels-controls,
+video:hover ~ .reels-controls,
+div:hover > .reels-controls {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Keep controls visible when interacting */
+.reels-controls:focus-within {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* ============================================
+   PROGRESS SECTION
+   ============================================ */
+.reels-progress-section {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+}
+
+.reels-progress {
+  flex: 1;
+  height: 4px;
+  -webkit-appearance: none;
+  appearance: none;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 2px;
+  cursor: pointer;
+  outline: none;
+  margin: 0;
+}
+
+.reels-progress:hover {
+  height: 6px;
+}
+
+/* Webkit (Chrome, Safari, Edge) - Progress Bar */
+.reels-progress::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  background: #fff;
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.3);
+  transition: transform 0.1s ease;
+  margin-top: -5px; /* Center vertically: (thumb_height - track_height) / 2 */
+}
+
+.reels-progress::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+}
+
+.reels-progress::-webkit-slider-runnable-track {
+  height: 4px;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 2px;
+}
+
+/* Firefox - Progress Bar */
+.reels-progress::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  background: #fff;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.3);
+}
+
+.reels-progress::-moz-range-track {
+  height: 4px;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 2px;
+}
+
+/* Time display */
+.reels-time {
+  color: #fff;
+  font-size: 12px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  min-width: 85px;
+  text-align: right;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+  user-select: none;
+  white-space: nowrap;
+}
+
+/* ============================================
+   VOLUME SECTION - VERTICAL ON RIGHT SIDE
+   ============================================ */
+.reels-volume-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  position: relative;
+}
+
+.reels-volume-btn {
+  background: rgba(0, 0, 0, 0.5);
+  border: none;
+  padding: 8px;
+  cursor: pointer;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: background-color 0.2s ease;
+}
+
+.reels-volume-btn:hover {
+  background-color: rgba(0, 0, 0, 0.7);
+}
+
+.reels-volume-btn svg {
+  width: 20px;
+  height: 20px;
+}
+
+/* Volume slider container - appears above button on hover */
+.reels-volume-slider-container {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 12px 8px;
+  background: rgba(0, 0, 0, 0.8);
+  border-radius: 8px;
+  margin-bottom: 8px;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s ease, visibility 0.2s ease;
+}
+
+.reels-volume-section:hover .reels-volume-slider-container,
+.reels-volume-slider-container:focus-within {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Vertical volume slider */
+.reels-volume {
+  width: 4px;
+  height: 80px;
+  -webkit-appearance: slider-vertical;
+  appearance: slider-vertical;
+  writing-mode: vertical-lr;
+  direction: rtl;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 2px;
+  cursor: pointer;
+  outline: none;
+  margin: 0;
+}
+
+/* Webkit (Chrome, Safari, Edge) - Volume Slider */
+.reels-volume::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  background: #fff;
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.3);
+  margin-left: -5px; /* Center horizontally: (thumb_width - track_width) / 2 */
+}
+
+.reels-volume::-webkit-slider-runnable-track {
+  width: 4px;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 2px;
+}
+
+/* Firefox - Volume Slider */
+.reels-volume::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  background: #fff;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.3);
+}
+
+.reels-volume::-moz-range-track {
+  width: 4px;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 2px;
+}
+
+/* ============================================
+   ACCESSIBILITY & FOCUS STATES
+   ============================================ */
+.reels-progress:focus,
+.reels-volume:focus {
+  outline: 2px solid rgba(255, 255, 255, 0.5);
+  outline-offset: 2px;
+}
+
+.reels-volume-btn:focus {
+  outline: 2px solid rgba(255, 255, 255, 0.5);
+  outline-offset: 2px;
+}
+
+/* ============================================
+   RESPONSIVE ADJUSTMENTS
+   ============================================ */
+@media (max-width: 480px) {
+  .reels-controls {
+    padding: 8px 12px;
+  }
+
+  .reels-time {
+    font-size: 11px;
+    min-width: 75px;
+  }
+
+  .reels-volume {
+    height: 60px;
+  }
+}
