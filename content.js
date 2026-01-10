@@ -6,6 +6,9 @@
 (function () {
   'use strict';
 
+  // Browser compatibility: Firefox uses 'browser', Chrome uses 'chrome'
+  const browserAPI = (typeof browser !== 'undefined') ? browser : chrome;
+
   // ============================================
   // CONFIGURATION
   // ============================================
@@ -68,7 +71,7 @@
 
   async function loadSettings() {
     try {
-      const result = await chrome.storage.local.get([
+      const result = await browserAPI.storage.local.get([
         CONFIG.STORAGE_KEYS.VOLUME,
         CONFIG.STORAGE_KEYS.SEEK_STEP,
         CONFIG.STORAGE_KEYS.VOLUME_STEP,
@@ -107,7 +110,7 @@
   async function saveVolume(volume) {
     try {
       currentVolume = volume;
-      await chrome.storage.local.set({ [CONFIG.STORAGE_KEYS.VOLUME]: volume });
+      await browserAPI.storage.local.set({ [CONFIG.STORAGE_KEYS.VOLUME]: volume });
       log('Saved volume:', volume);
     } catch (e) {
       log('Error saving volume:', e);
@@ -116,7 +119,7 @@
 
   // Listen for storage changes (when user changes settings in popup)
   function setupStorageListener() {
-    chrome.storage.onChanged.addListener((changes, areaName) => {
+    browserAPI.storage.onChanged.addListener((changes, areaName) => {
       log('Storage changed:', areaName, changes);
 
       if (areaName !== 'local') return;
@@ -247,7 +250,7 @@
     // Apply saved volume (use default 50% if not set)
     const volumeToApply = currentVolume > 0 ? currentVolume : CONFIG.DEFAULT_VOLUME;
     video.volume = volumeToApply;
-    
+
     // Auto-unmute on play event (more robust than setting immediately)
     if (CONFIG.AUTO_UNMUTE) {
       const handlePlay = () => {
@@ -258,16 +261,16 @@
           log('Auto-unmuted on play, volume:', video.volume);
         }
       };
-      
+
       // Listen for play events
       video.addEventListener('play', handlePlay);
-      
+
       // Also try immediately if video is already playing
       if (!video.paused) {
         handlePlay();
       }
     }
-    
+
     updateVolumeIcon(controls.volumeBtn, volumeToApply, video.muted);
 
     // ----------------------------------------

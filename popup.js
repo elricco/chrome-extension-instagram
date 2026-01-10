@@ -6,6 +6,9 @@
 (function () {
   'use strict';
 
+  // Browser API compatibility (Chrome/Firefox)
+  const browserAPI = (typeof browser !== 'undefined') ? browser : chrome;
+
   const STORAGE_KEYS = {
     SEEK_STEP: 'reelsSeekStep',
     VOLUME_STEP: 'reelsVolumeStep',
@@ -27,7 +30,7 @@
   // Load saved settings
   async function loadSettings() {
     try {
-      const result = await chrome.storage.local.get([
+      const result = await browserAPI.storage.local.get([
         STORAGE_KEYS.SEEK_STEP,
         STORAGE_KEYS.VOLUME_STEP,
         STORAGE_KEYS.AUTO_UNMUTE
@@ -53,7 +56,7 @@
   // Save setting
   async function saveSetting(key, value) {
     try {
-      await chrome.storage.local.set({ [key]: value });
+      await browserAPI.storage.local.set({ [key]: value });
       showSaveStatus();
     } catch (e) {
       console.error('Error saving setting:', e);

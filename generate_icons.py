@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Generate Instagram Reels Controls extension icons
-with Instagram gradient, camera logo, and "IRC" text
+with gradient background and "IRC" text
 """
 
 from PIL import Image, ImageDraw, ImageFont
@@ -53,87 +53,66 @@ def create_rounded_rect_mask(size, radius):
     draw.rounded_rectangle([0, 0, size-1, size-1], radius=radius, fill=255)
     return mask
 
-def draw_camera_icon(draw, size, color='white'):
-    """Draw simplified Instagram camera icon"""
-    # Scale factors
-    s = size / 128  # Base size is 128
-    cx, cy = size / 2, size / 2  # Center
-
-    # Outer rounded rectangle (camera body)
-    padding = 20 * s
-    outer_radius = 28 * s
-    draw.rounded_rectangle(
-        [padding, padding, size - padding, size - padding],
-        radius=outer_radius,
-        outline=color,
-        width=max(2, int(6 * s))
-    )
-
-    # Inner circle (lens)
-    lens_radius = 22 * s
-    draw.ellipse(
-        [cx - lens_radius, cy - lens_radius, cx + lens_radius, cy + lens_radius],
-        outline=color,
-        width=max(2, int(6 * s))
-    )
-
-    # Small circle (flash) - top right
-    flash_radius = 5 * s
-    flash_x = size - padding - 18 * s
-    flash_y = padding + 18 * s
-    draw.ellipse(
-        [flash_x - flash_radius, flash_y - flash_radius,
-         flash_x + flash_radius, flash_y + flash_radius],
-        fill=color
-    )
-
 def add_irc_text(img, size):
-    """Add 'IRC' text to bottom-right corner"""
+    """Add 'IRC' text centered on the icon"""
     draw = ImageDraw.Draw(img)
 
     # Calculate font size based on icon size
-    font_size = max(8, int(size * 0.22))
+    font_size = int(size * 0.4)  # Larger font for centered text
 
     # Try to use a nice font, fallback to default
     try:
-        # Try common macOS fonts
+        # Try common macOS/system fonts
         font_paths = [
-            '/System/Library/Fonts/SFCompact-Bold.otf',
             '/System/Library/Fonts/Supplemental/Arial Bold.ttf',
-            '/System/Library/Fonts/Helvetica.ttc',
-            '/Library/Fonts/Arial Bold.ttf',
+            '/System/Library/Fonts/SFNS.ttf',
+            '/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf',
+            '/usr/share/fonts/TTF/arial.ttf',
         ]
         font = None
         for path in font_paths:
             if os.path.exists(path):
-                try:
-                    font = ImageFont.truetype(path, font_size)
-                    break
-                except:
-                    continue
+                font = ImageFont.truetype(path, font_size)
+                break
         if font is None:
             font = ImageFont.load_default()
-    except:
+    except Exception:
         font = ImageFont.load_default()
 
-    text = "IRC"
+    text = 'IRC'
 
-    # Get text bounding box
+    # Get text bounding box for centering
     bbox = draw.textbbox((0, 0), text, font=font)
     text_width = bbox[2] - bbox[0]
     text_height = bbox[3] - bbox[1]
 
-    # Position in bottom-right with padding
-    padding = max(2, int(size * 0.08))
-    x = size - text_width - padding
-    y = size - text_height - padding - 2
+    # Center the text
+    x = (size - text_width) // 2
+    y = (size - text_height) // 2 - bbox[1]  # Adjust for baseline
 
-    # Draw text shadow for better visibility
-    shadow_offset = max(1, int(size * 0.015))
-    draw.text((x + shadow_offset, y + shadow_offset), text, fill=(0, 0, 0, 180), font=font)
+    # Add text shadow for better readability
+    shadow_offset = max(1, int(size * 0.02))
+    draw.text((x + shadow_offset, y + shadow_offset), text, fill=(0, 0, 0, 128), font=font)
 
     # Draw main text
-    draw.text((x, y), text, fill='white', font=font)
+    draw.text((x, y), text, fill='white', font=font, stroke_width=max(1, int(size * 0.015)), stroke_fill=(0, 0, 0, 100))
+
+    return img
+
+def add_white_outline(img, size, corner_radius):
+    """Add white outline around the rounded rectangle"""
+    draw = ImageDraw.Draw(img)
+
+    # Calculate outline width based on size
+    outline_width = max(2, int(size * 0.04))
+
+    # Draw white rounded rectangle outline
+    draw.rounded_rectangle(
+        [0, 0, size-1, size-1],
+        radius=corner_radius,
+        outline='white',
+        width=outline_width
+    )
 
     return img
 
@@ -150,13 +129,11 @@ def create_icon(size):
     final = Image.new('RGBA', (size, size), (0, 0, 0, 0))
     final.paste(img, mask=mask)
 
-    # Draw camera icon
-    draw = ImageDraw.Draw(final)
-    draw_camera_icon(draw, size, color='white')
+    # Add white outline
+    add_white_outline(final, size, corner_radius)
 
-    # Add IRC text
-    if size >= 32:  # Only add text for larger icons
-        add_irc_text(final, size)
+    # Add IRC text centered
+    add_irc_text(final, size)
 
     return final
 
