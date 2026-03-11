@@ -2,7 +2,7 @@
 
 Eine Browser-Erweiterung für Chrome und Firefox, die Video-Scrubbing, Lautstärkeregelung und Keyboard-Shortcuts für Instagram Reels hinzufügt.
 
-![Version](https://img.shields.io/badge/version-1.2.0-blue)
+![Version](https://img.shields.io/badge/version-1.3.0-blue)
 ![Chrome](https://img.shields.io/badge/Chrome-Extension-green)
 ![Firefox](https://img.shields.io/badge/Firefox-Add--on-orange)
 ![License](https://img.shields.io/badge/license-MIT-purple)
@@ -11,10 +11,12 @@ Eine Browser-Erweiterung für Chrome und Firefox, die Video-Scrubbing, Lautstär
 
 - **🎬 Video-Scrubbing** – Navigiere frei innerhalb des Videos mit der Progress-Bar
 - **🔊 Lautstärkeregelung** – Stufenlose Lautstärke von 0-100% (nicht nur Mute/Unmute)
-- **� Auto-Unmute** – Videos werden automatisch mit deiner Lautstärke abgespielt (abschaltbar)
+- **🔁 Auto-Unmute** – Videos werden automatisch mit deiner Lautstärke abgespielt (abschaltbar)
 - **💾 Persistente Einstellungen** – Lautstärke und Einstellungen werden gespeichert
 - **⚙️ Einstellbares Popup** – Sprungweite, Lautstärke-Schritte und Auto-Unmute anpassbar
 - **⌨️ Keyboard-Shortcuts** – Schnelle Steuerung ohne Maus
+- **🔍 Fit to Screen** – Vergrößert den kompletten Post (Video + Kommentare) dynamisch auf Viewport-Höhe
+- **⛶ Full Screen** – Nativer Vollbildmodus für ablenkungsfreies Schauen
 - **🙈 Versteckter Instagram-Sound-Button** – Der native Mute-Button wird ausgeblendet
 
 ## ⌨️ Keyboard-Shortcuts
@@ -27,6 +29,7 @@ Eine Browser-Erweiterung für Chrome und Firefox, die Video-Scrubbing, Lautstär
 | `↓` | Lautstärke verringern (einstellbar: 5% - 25%) |
 | `M` | Mute/Unmute |
 | `P` | Play/Pause |
+| `F` | Vollbild an/aus |
 
 > 💡 **Tipp:** Klicke auf das Extension-Icon in der Toolbar um die Einstellungen anzupassen.
 
@@ -147,6 +150,13 @@ instagram-reels-controls/
 In `content.js` ist `CONFIG.DEBUG = true` gesetzt. Logs erscheinen in der Browser-Konsole mit dem Prefix `[Reels Controls]`.
 
 ## 📝 Changelog
+
+### v1.3.0 (März 2026)
+- **NEU:** Fit to Screen – skaliert den kompletten Post (Video + Kommentarspalte) dynamisch auf Viewport-Höhe mit berechnetem Margin
+- **NEU:** Full Screen – nativer Browser-Vollbildmodus via Fullscreen API
+- **NEU:** Keyboard-Shortcut `F` für Vollbild
+- Fit-to-Screen-Berechnung vollständig dynamisch (Viewport-Größe, Elementposition, alle Auflösungen)
+- Volume Slider erscheint nicht mehr beim Hover über Fit/Fullscreen-Buttons (eigene Section)
 
 ### v1.2.0 (Januar 2026)
 - **NEU:** Firefox-Kompatibilität – Extension funktioniert jetzt in Chrome UND Firefox

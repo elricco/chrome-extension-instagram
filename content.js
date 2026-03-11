@@ -61,6 +61,30 @@
       <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
       <line x1="23" y1="9" x2="17" y2="15"></line>
       <line x1="17" y1="9" x2="23" y2="15"></line>
+    </svg>`,
+    fitScreen: `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="15 3 21 3 21 9"></polyline>
+      <polyline points="9 21 3 21 3 15"></polyline>
+      <line x1="21" y1="3" x2="14" y2="10"></line>
+      <line x1="3" y1="21" x2="10" y2="14"></line>
+    </svg>`,
+    exitFitScreen: `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="4 14 10 14 10 20"></polyline>
+      <polyline points="20 10 14 10 14 4"></polyline>
+      <line x1="10" y1="14" x2="3" y2="21"></line>
+      <line x1="21" y1="3" x2="14" y2="10"></line>
+    </svg>`,
+    fullscreen: `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="8 3 3 3 3 8"></polyline>
+      <polyline points="21 8 21 3 16 3"></polyline>
+      <polyline points="3 16 3 21 8 21"></polyline>
+      <polyline points="16 21 21 21 21 16"></polyline>
+    </svg>`,
+    exitFullscreen: `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="4 14 10 14 10 20"></polyline>
+      <polyline points="20 10 14 10 14 4"></polyline>
+      <polyline points="4 10 10 10 10 4"></polyline>
+      <polyline points="14 20 14 14 20 14"></polyline>
     </svg>`
   };
 
@@ -146,7 +170,7 @@
   // ============================================
   // CONTROLS UI
   // ============================================
-  function createControls(video) {
+  function createControls() {
     const container = document.createElement('div');
     container.className = CONFIG.CONTROLS_CLASS;
 
@@ -196,8 +220,26 @@
     volumeSection.appendChild(volumeSliderContainer);
     volumeSection.appendChild(volumeBtn);
 
+    // Actions section — separate from volume to avoid triggering the volume slider on hover
+    const actionsSection = document.createElement('div');
+    actionsSection.className = 'reels-actions-section';
+
+    const fitBtn = document.createElement('button');
+    fitBtn.className = 'reels-action-btn';
+    fitBtn.innerHTML = ICONS.fitScreen;
+    fitBtn.title = 'Fit to Screen';
+
+    const fullscreenBtn = document.createElement('button');
+    fullscreenBtn.className = 'reels-action-btn';
+    fullscreenBtn.innerHTML = ICONS.fullscreen;
+    fullscreenBtn.title = 'Full Screen (F)';
+
+    actionsSection.appendChild(fitBtn);
+    actionsSection.appendChild(fullscreenBtn);
+
     // Assemble container
     container.appendChild(progressSection);
+    container.appendChild(actionsSection);
     container.appendChild(volumeSection);
 
     return {
@@ -205,7 +247,9 @@
       progressBar,
       timeDisplay,
       volumeBtn,
-      volumeSlider
+      volumeSlider,
+      fitBtn,
+      fullscreenBtn
     };
   }
 
@@ -244,7 +288,7 @@
     }
 
     // Create and inject controls
-    const controls = createControls(video);
+    const controls = createControls();
     videoContainer.appendChild(controls.container);
 
     // Apply saved volume (use default 50% if not set)
@@ -353,6 +397,111 @@
     // Prevent container clicks from affecting Instagram
     controls.container.addEventListener('click', (e) => {
       e.stopPropagation();
+    });
+
+    // ----------------------------------------
+    // FIT TO SCREEN  (CSS scale — element stays in DOM, React events intact)
+    // ----------------------------------------
+    let isFitted = false;
+    let fitTarget = null;
+    let fitOrigStyle = '';
+
+    function findPostContainer() {
+      // Target the first direct child div of role="main" — this wraps video + comments
+      const main = document.querySelector('[role="main"]');
+      if (main) {
+        const firstDiv = main.querySelector(':scope > div');
+        if (firstDiv) {
+          const secondDiv = firstDiv.querySelector(':scope > div');
+          if (secondDiv) return secondDiv;
+          return firstDiv;
+        }
+        return main;
+      }
+      // Fallback: walk up from video to nearest dialog/article
+      let el = video.parentElement;
+      while (el && el !== document.body) {
+        if (el.getAttribute('role') === 'dialog' || el.tagName === 'ARTICLE') {
+          return el;
+        }
+        el = el.parentElement;
+      }
+      return null;
+    }
+
+    function exitFitToScreen() {
+      if (fitTarget) {
+        fitTarget.setAttribute('style', fitOrigStyle);
+      }
+      isFitted = false;
+      fitTarget = null;
+      controls.fitBtn.innerHTML = ICONS.fitScreen;
+      controls.fitBtn.classList.remove('reels-btn-active');
+      log('Fit to screen: restored');
+    }
+
+    controls.fitBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+
+      if (isFitted) {
+        exitFitToScreen();
+      } else {
+        if (document.fullscreenElement) document.exitFullscreen();
+
+        fitTarget = findPostContainer() || videoContainer;
+        fitOrigStyle = fitTarget.getAttribute('style') || '';
+
+        const rect = fitTarget.getBoundingClientRect();
+        const edgeMargin = 40; // px free space top & bottom
+        const scale = (window.innerHeight - edgeMargin * 2) / rect.height;
+
+        // Shift element so its scaled visual center lands at viewport center
+        const currentCenterY = rect.top + rect.height / 2;
+        const desiredCenterY = window.innerHeight / 2;
+        const marginTop = Math.round(desiredCenterY - currentCenterY);
+
+        fitTarget.style.setProperty('transform', `scale(${scale.toFixed(3)})`, 'important');
+        fitTarget.style.setProperty('transform-origin', 'center center', 'important');
+        fitTarget.style.setProperty('position', 'relative', 'important');
+        fitTarget.style.setProperty('z-index', '2147483647', 'important');
+        fitTarget.style.setProperty('margin-top', `${marginTop}px`, 'important');
+
+        isFitted = true;
+        controls.fitBtn.innerHTML = ICONS.exitFitScreen;
+        controls.fitBtn.classList.add('reels-btn-active');
+        log('Fit to screen: scale', scale.toFixed(3));
+      }
+    });
+
+    // ----------------------------------------
+    // FULL SCREEN
+    // ----------------------------------------
+    controls.fullscreenBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+
+      if (!document.fullscreenElement) {
+        // Exit fit-to-screen first to avoid fixed-position conflicts
+        if (isFitted) {
+          exitFitToScreen();
+        }
+
+        videoContainer.requestFullscreen().catch((err) => {
+          log('Container fullscreen failed, trying video element:', err);
+          video.requestFullscreen().catch((e2) => log('Fullscreen failed:', e2));
+        });
+      } else {
+        document.exitFullscreen();
+      }
+    });
+
+    document.addEventListener('fullscreenchange', () => {
+      if (document.fullscreenElement) {
+        controls.fullscreenBtn.innerHTML = ICONS.exitFullscreen;
+        controls.fullscreenBtn.classList.add('reels-btn-active');
+      } else {
+        controls.fullscreenBtn.innerHTML = ICONS.fullscreen;
+        controls.fullscreenBtn.classList.remove('reels-btn-active');
+      }
     });
 
     log('Video enhanced successfully');
@@ -489,6 +638,20 @@
             video.pause();
             log('Video paused');
           }
+          break;
+
+        case 'f':
+        case 'F':
+          e.preventDefault();
+          if (!document.fullscreenElement) {
+            const container = video.closest('div') || video.parentElement;
+            if (container) {
+              container.requestFullscreen().catch(() => video.requestFullscreen().catch(() => {}));
+            }
+          } else {
+            document.exitFullscreen();
+          }
+          log('Fullscreen toggled');
           break;
       }
     });

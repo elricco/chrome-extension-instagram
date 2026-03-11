@@ -243,6 +243,60 @@ div:hover > .reels-controls {
 }
 
 /* ============================================
+   ACTIONS SECTION (Fit to Screen + Fullscreen)
+   ============================================ */
+.reels-actions-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.reels-action-btn {
+  background: rgba(0, 0, 0, 0.5);
+  border: none;
+  padding: 8px;
+  cursor: pointer;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: background-color 0.2s ease;
+}
+
+.reels-action-btn:hover {
+  background-color: rgba(0, 0, 0, 0.7);
+}
+
+.reels-action-btn svg {
+  width: 18px;
+  height: 18px;
+}
+
+.reels-action-btn.reels-btn-active {
+  background-color: rgba(255, 255, 255, 0.25);
+}
+
+.reels-action-btn.reels-btn-active:hover {
+  background-color: rgba(255, 255, 255, 0.35);
+}
+
+.reels-action-btn:focus {
+  outline: 2px solid rgba(255, 255, 255, 0.5);
+  outline-offset: 2px;
+}
+
+/* Overlay backdrop when fit-to-screen is active */
+.reels-fit-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.85);
+  z-index: 2147483646;
+  cursor: default;
+}
+
+/* ============================================
    ACCESSIBILITY & FOCUS STATES
    ============================================ */
 .reels-progress:focus,
